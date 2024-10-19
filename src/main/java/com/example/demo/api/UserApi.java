@@ -6,13 +6,16 @@ import com.example.demo.model.dto.UserDTO;
 import com.example.demo.model.request.ApiResponse;
 import com.example.demo.model.response.UserResponse;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/user")
+@Slf4j
 public class UserApi {
     @Autowired
     private IUserService userService ;
@@ -26,6 +29,11 @@ public class UserApi {
     }
     @GetMapping
     public ApiResponse<List<UserResponse>> listUsers(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication() ;
+        //ghi log
+        log.info("Username :{}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info(grantedAuthority.getAuthority()));
+
         List<UserResponse> list = userService.getAll() ;
         return ApiResponse.<List<UserResponse>>builder()
                 .code(1000)

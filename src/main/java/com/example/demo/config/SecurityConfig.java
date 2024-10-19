@@ -1,4 +1,5 @@
 package com.example.demo.config;
+import com.example.demo.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -32,12 +35,17 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST , PUBLIC_ENDPOINTS).permitAll()
-                        .anyRequest()
-                        .authenticated()) ;
+                        .requestMatchers(HttpMethod.GET,"/api/user" ).hasRole(Role.ADMIN.name()) // chỉ admon truy cập api này
+                        .anyRequest().authenticated()) ;
+
+
         // suppost cho cái khi đăng nhập đã có token
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder()))
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 ) ;
+
+
         httpSecurity.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable()) ;
         return httpSecurity.build();
     }
@@ -47,4 +55,13 @@ public class SecurityConfig {
         SecretKeySpec secretKeySpec = new SecretKeySpec(signkey.getBytes(),"HS512") ;
         return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
     } ;
+    // bean dùng để đổi scope thành role nhìn cho dễ
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter(){
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter() ;
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter() ;
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        return jwtAuthenticationConverter ;
+    }
 }
