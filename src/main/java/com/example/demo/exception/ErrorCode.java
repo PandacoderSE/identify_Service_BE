@@ -1,23 +1,38 @@
 package com.example.demo.exception;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
 public enum ErrorCode {
-    USER_EXISTED(1234, "User Existed . "),
-    UNAUTHENTICATED(1005, "Not login ")
+    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_KEY(1001, "Uncategorized error", HttpStatus.BAD_REQUEST),
+    USER_EXISTED(1002, "User existed", HttpStatus.BAD_REQUEST),
+    USERNAME_INVALID(1003, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(1004, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
+    USER_NOT_EXISTED(1005, "User not existed", HttpStatus.NOT_FOUND),
+    UNAUTHENTICATED(1006, "Unauthenticated", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     ;
 
-    ErrorCode(int code, String message) {
+
+    ErrorCode(int code, String message, HttpStatusCode statuscode) {
         this.code = code;
         this.message = message;
+        this.statusCode = statuscode ;
     }
 
     private int code ;
     private String message ;
-
+    private HttpStatusCode statusCode ;
     public int getCode() {
         return code;
     }
 
     public String getMessage() {
         return message;
+    }
+
+    public HttpStatusCode getStatusCode() {
+        return statusCode;
     }
 }
