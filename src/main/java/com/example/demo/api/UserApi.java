@@ -41,11 +41,19 @@ public class UserApi {
                 .build();
     }
     @GetMapping("/{id}")
-    public UserDTO listUser( @PathVariable Long id){
-            return userService.findU(id) ;
+    ApiResponse<UserResponse> getUser(@PathVariable Long id){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getUser(id))
+                .build();
     }
     @PutMapping("/{id}")
     public UserEntity updateUser(@PathVariable Long id, @RequestBody UserDTO dto){
          return userService.updateUser(id, dto) ;
+    }
+    @GetMapping("/myInfo")
+    ApiResponse<UserResponse> getMyInfo(){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
     }
 }

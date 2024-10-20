@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface IUserService {
     public UserResponse createUser(UserDTO dto) ;
-    public UserDTO findU(Long Id) ;
+    public UserResponse getUser(Long id) ;
 
     UserEntity updateUser(Long id , UserDTO dto) ;
     List<UserResponse> getAll() ;
+    UserResponse getMyInfo() ;
 }

@@ -9,7 +9,11 @@ import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
 import com.example.demo.model.dto.UserDTO;
 import com.example.demo.model.response.UserResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,8 +22,10 @@ import org.modelmapper.ModelMapper;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class UserServiceimpl implements IUserService {
 
     @Autowired
@@ -41,10 +47,12 @@ public class UserServiceimpl implements IUserService {
             newu.setRoles(roles);
         return userMapper.toRespon(userRepository.save(newu)) ;
     }
-
+    @PostAuthorize("returnObject.username == authentication.name") // đúng user thì trả về thông tin user đó
     @Override
-    public UserDTO findU(Long Id) {
-       return modelMapper.map(userRepository.findById(Id).orElseThrow(() -> new RuntimeException("User not found ")),UserDTO.class) ;
+    public UserResponse getUser(Long id){
+        log.info("In method get user by Id");
+        return userMapper.toRespon(userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED)));
     }
 
     @Override
@@ -54,7 +62,8 @@ public class UserServiceimpl implements IUserService {
         userMapper.updateUser(us, dto);
         return userRepository.save(us) ;
     }
-
+    // cách dùng method phân quyền
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public List<UserResponse> getAll() {
         List<UserResponse> list = new ArrayList<>() ;
@@ -64,5 +73,14 @@ public class UserServiceimpl implements IUserService {
             list.add(dto) ;
         }
         return list;
+    }
+
+    @Override
+    public UserResponse getMyInfo() {
+        var context = SecurityContextHolder.getContext() ;
+        String name = context.getAuthentication().getName();
+        UserEntity user = Optional.ofNullable(userRepository.findByUsername(name))
+                .orElseThrow(() -> new AppException(ErrorCode.USER_EXISTED));
+        return userMapper.toRespon(user) ;
     }
 }
