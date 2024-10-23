@@ -1,5 +1,6 @@
 package com.example.demo.config;
 import com.example.demo.enums.Role;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,12 +24,14 @@ import javax.crypto.spec.SecretKeySpec;
 // phân quyền = method
 @EnableMethodSecurity
 public class SecurityConfig {
-    @Value("${jwt.signerKey}")
-    private String signkey ;
+
+    @Autowired
+    private CustomJwtDecoder jwtDecoder ;
     // các api ko cần login vẫn truy cập đc
     private final String[] PUBLIC_ENDPOINTS = {"/api/user",
-            "/api/auth/token", "/api/auth/introspect"
+            "/api/auth/token", "/api/auth/introspect","/api/auth/logout"
     } ;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -44,7 +47,7 @@ public class SecurityConfig {
 
         // suppost cho cái khi đăng nhập đã có token
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+                        oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
                 ) ;
@@ -54,11 +57,11 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
     // tạo 1 cái jwtdecor , để kích hoạt khi đăng nhập thành công , và xác thwucj đc token thì sẽ đc dùng các method có
-    @Bean
-    JwtDecoder jwtDecoder(){
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signkey.getBytes(),"HS512") ;
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
-    } ;
+//    @Bean
+//    JwtDecoder jwtDecoder(){
+//        SecretKeySpec secretKeySpec = new SecretKeySpec(signkey.getBytes(),"HS512") ;
+//        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS512).build();
+//    } ;
     // bean dùng để đổi scope thành role nhìn cho dễ
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){

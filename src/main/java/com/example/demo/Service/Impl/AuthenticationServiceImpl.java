@@ -1,13 +1,16 @@
 package com.example.demo.Service.Impl;
 
+import com.example.demo.Entity.InvalidatedToken;
 import com.example.demo.Entity.RoleEntity;
 import com.example.demo.Entity.UserEntity;
+import com.example.demo.Repository.InvalidatedTokenRepository;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.IAuthenticationService;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.model.request.AuthenticationRequest;
 import com.example.demo.model.request.IntrospectTokenRequest;
+import com.example.demo.model.request.LogoutRequest;
 import com.example.demo.model.response.AuthenticationResponse;
 import com.example.demo.model.response.IntrospectTokenResponse;
 import com.nimbusds.jose.*;
@@ -28,11 +31,14 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Service
 public class AuthenticationServiceImpl implements IAuthenticationService {
     @Autowired
     private UserRepository userRepository ;
+    @Autowired
+    private InvalidatedTokenRepository tokenRepository ;
     @NonFinal
 //    protected static final String SIGNER_KEY = "WHoXAMeaioBEovwVedUCB6lTNgEHL1zUGN/j9cpPmkqkceAvSFHmxTfm4rAvH069" ;
     @Value("${jwt.signerKey}")
@@ -56,9 +62,19 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     }
 
     @Override
-    public IntrospectTokenResponse introspectTokenResponse(IntrospectTokenRequest introspectTokenRequest) throws JOSEException, ParseException {
-        var token = introspectTokenRequest.getToken() ;
-        // kiêm tra  token đúng hay ko
+    public void logout(LogoutRequest request) throws JOSEException, ParseException{
+        var signToken = verifiedToken(request.getToken()) ;
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date extryTime = signToken.getJWTClaimsSet().getExpirationTime();
+        InvalidatedToken tokenTime = new InvalidatedToken() ;
+        tokenTime.setId(jit);
+        tokenTime.setExpiryTime(extryTime);
+        tokenRepository.save(tokenTime) ;
+
+    }
+    //hàm tar về token phục vụ hàm logout , verifi ra token
+    private SignedJWT verifiedToken(String token)throws JOSEException, ParseException{
+
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
 
         SignedJWT signedJWT = SignedJWT.parse(token) ;
@@ -66,8 +82,26 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
         Date expityTime = signedJWT.getJWTClaimsSet().getExpirationTime() ;
 
         var verified =  signedJWT.verify(verifier) ;
+        if(!(verified && expityTime.after(new Date())))
+            throw new AppException(ErrorCode.UNAUTHENTICATED) ;
+
+        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+        if(tokenRepository.existsById(jit))
+            throw new AppException(ErrorCode.UNAUTHENTICATED) ;
+        return signedJWT ;
+    }
+    @Override
+    public IntrospectTokenResponse introspectTokenResponse(IntrospectTokenRequest introspectTokenRequest) throws JOSEException, ParseException {
+        var token = introspectTokenRequest.getToken() ;
+        // kiêm tra  token đúng hay ko
+        boolean isValid = true ;
+        try {
+            verifiedToken(token) ;
+        }catch (AppException e){
+            isValid = false ;
+        }
         return  IntrospectTokenResponse.builder()
-                .valid(verified && expityTime.after(new Date()))
+                .valid(isValid)
                 .build();
     }
 
@@ -82,6 +116,7 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
                 .expirationTime(new Date( // thời gian hết hạn
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope",buildScope(user)) // để có thể autherization cần role
                 .build() ;
         Payload payload = new Payload(jwtClaimsSet.toJSONObject()) ;

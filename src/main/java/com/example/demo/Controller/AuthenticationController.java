@@ -4,6 +4,7 @@ import com.example.demo.Service.IAuthenticationService;
 import com.example.demo.model.request.ApiResponse;
 import com.example.demo.model.request.AuthenticationRequest;
 import com.example.demo.model.request.IntrospectTokenRequest;
+import com.example.demo.model.request.LogoutRequest;
 import com.example.demo.model.response.AuthenticationResponse;
 import com.example.demo.model.response.IntrospectTokenResponse;
 import com.nimbusds.jose.JOSEException;
@@ -31,6 +32,12 @@ public class AuthenticationController {
         var result =  authenticationService.authenticate(authenticationRequest) ;
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
+                .build() ;
+    }
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest TokenRequest) throws ParseException, JOSEException {
+        authenticationService.logout(TokenRequest); ;
+        return ApiResponse.<Void>builder()
                 .build() ;
     }
     @PostMapping("/introspect")
