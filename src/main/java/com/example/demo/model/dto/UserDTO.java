@@ -1,5 +1,6 @@
 package com.example.demo.model.dto;
 
+import com.example.demo.validator.DobConstraint;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -15,7 +16,7 @@ public class UserDTO {
     private long id ;
 
     private String username ;
-    @Size(min = 8, message = "Password must be at least 8 char ")
+    @Size(min = 6, message = "INVALID_PASSWORD")
     private String password ;
 
 
@@ -23,7 +24,7 @@ public class UserDTO {
 
 
     private String lastname ;
-
+    @DobConstraint(min = 16, message ="INVALID_DOB")
     private LocalDate dob;
 
 }

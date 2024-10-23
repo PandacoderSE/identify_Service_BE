@@ -1,6 +1,7 @@
 package com.example.demo.model.request;
 
 import com.example.demo.model.response.RoleResponse;
+import com.example.demo.validator.DobConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +22,7 @@ public class UpdateUserRequest {
     private String password ;
 
     private String lastname ;
-
+    @DobConstraint(min = 18, message ="INVALID_DOB")
     private LocalDate dob;
 
     private Set<String> roles;
