@@ -21,14 +21,15 @@ public class ApplicationInitConfig {
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository){
         return args -> {
-            HashSet<String> roles = new HashSet<>() ;
-            roles.add(Role.ADMIN.name()) ;
+           // HashSet<String> roles = new HashSet<>() ;
+           // roles.add(Role.ADMIN.name()) ;
             PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10) ;
             if(userRepository.findByUsername("admin") == null){
                 UserEntity user = UserEntity.builder()
                         .username("admin")
                         .password(passwordEncoder.encode("123456"))
-                        .roles(roles).build() ;
+                       // .roles(roles)
+                        .build() ;
                 userRepository.save(user) ;
                 log.warn("admin user has been created with default password , admin please change it");
             }

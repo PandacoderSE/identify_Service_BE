@@ -1,5 +1,6 @@
 package com.example.demo.Service.Impl;
 
+import com.example.demo.Entity.RoleEntity;
 import com.example.demo.Entity.UserEntity;
 import com.example.demo.Repository.UserRepository;
 import com.example.demo.Service.IAuthenticationService;
@@ -100,7 +101,13 @@ public class AuthenticationServiceImpl implements IAuthenticationService {
     private String buildScope(UserEntity user){
         StringJoiner stringJoiner = new StringJoiner(" ") ;
         if(!CollectionUtils.isEmpty(user.getRoles())){
-            user.getRoles().forEach( s -> stringJoiner.add(s));
+            for (RoleEntity item : user.getRoles()) {
+                stringJoiner.add("ROLE_" + item.getName()) ;
+                if(!CollectionUtils.isEmpty(item.getPermissions())){
+                    // add thêm permission thao tác cảu role
+                    item.getPermissions().forEach(permissionEntity -> stringJoiner.add(permissionEntity.getName()));
+                }
+            }
         }
         return stringJoiner.toString() ;
     }

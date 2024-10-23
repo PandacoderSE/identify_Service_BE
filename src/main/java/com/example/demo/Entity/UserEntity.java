@@ -24,13 +24,13 @@ public class UserEntity {
     private String password ;
 
     @Column(name ="firstname")
-    private String firstrname ;
+    private String firstname ;
 
     @Column(name ="lastname")
     private String lastname ;
 
     @Column(name ="dob")
     private LocalDate dob;
-    @Column(name ="roles")
-    private Set<String> roles;
+    @ManyToMany
+    private Set<RoleEntity> roles;
 }
