@@ -15,16 +15,16 @@ public enum ErrorCode {
     INVALID_DOB(1009, "Your age must  be at least {min} ", HttpStatus.BAD_REQUEST),
     ;
 
-
     ErrorCode(int code, String message, HttpStatusCode statuscode) {
         this.code = code;
         this.message = message;
-        this.statusCode = statuscode ;
+        this.statusCode = statuscode;
     }
 
-    private int code ;
-    private String message ;
-    private HttpStatusCode statusCode ;
+    private int code;
+    private String message;
+    private HttpStatusCode statusCode;
+
     public int getCode() {
         return code;
     }

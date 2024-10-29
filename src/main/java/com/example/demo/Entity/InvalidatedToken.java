@@ -1,11 +1,12 @@
 package com.example.demo.Entity;
 
+import java.util.Date;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.*;
 
-import java.util.Date;
+import lombok.*;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import java.util.Date;
 @Table(name = "InvalidatedToken")
 public class InvalidatedToken {
     @Id
-    String Id ;
-    Date expiryTime ;
+    String Id;
+
+    Date expiryTime;
 }

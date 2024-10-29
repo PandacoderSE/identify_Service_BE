@@ -1,6 +1,7 @@
 package com.example.demo.model.request;
 
 import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,8 @@ import lombok.NoArgsConstructor;
 @Builder
 // kểm tra hiệu lực của token
 public class AuthenticationRequest {
-    private String username ;
+    private String username;
+
     @Size(min = 8, message = "Password must be at least 8 char ")
-    private String password ;
+    private String password;
 }

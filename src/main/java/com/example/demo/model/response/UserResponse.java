@@ -1,23 +1,22 @@
 package com.example.demo.model.response;
 
-import jakarta.validation.constraints.Size;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.util.Set;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class UserResponse {
-    private long id ;
+    private long id;
 
-    private String username ;
+    private String username;
 
-    private String firstname ;
+    private String firstname;
 
-    private String lastname ;
+    private String lastname;
 
     private LocalDate dob;
 

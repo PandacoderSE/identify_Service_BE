@@ -1,9 +1,10 @@
 package com.example.demo.Entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.Set;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Getter
 @Setter
@@ -14,10 +15,11 @@ import java.util.Set;
 @Table(name = "role")
 public class RoleEntity {
     @Id
-    private String name ;
-    @Column(name ="description")
-    private String description ;
+    private String name;
+
+    @Column(name = "description")
+    private String description;
 
     @ManyToMany
-    Set<PermissionEntity> permissions ;
+    Set<PermissionEntity> permissions;
 }

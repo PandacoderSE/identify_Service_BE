@@ -1,17 +1,19 @@
 package com.example.demo.Service;
 
-import com.example.demo.Entity.UserEntity;
+import java.util.List;
+
 import com.example.demo.model.dto.UserDTO;
 import com.example.demo.model.request.UpdateUserRequest;
 import com.example.demo.model.response.UserResponse;
 
-import java.util.List;
-
 public interface IUserService {
-    public UserResponse createUser(UserDTO dto) ;
-    public UserResponse getUser(Long id) ;
+    public UserResponse createUser(UserDTO dto);
 
-    UserResponse updateUser(Long id , UpdateUserRequest request) ;
-    List<UserResponse> getAll() ;
-    UserResponse getMyInfo() ;
+    public UserResponse getUser(Long id);
+
+    UserResponse updateUser(Long id, UpdateUserRequest request);
+
+    List<UserResponse> getAll();
+
+    UserResponse getMyInfo();
 }

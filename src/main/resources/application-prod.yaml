@@ -1,0 +1,4 @@
+
+jwt:
+  valid-duration: 7200 #giây
+  refreshable-duration: 72000 #giây
